@@ -1,5 +1,6 @@
 const { ApolloServer } = require('@apollo/server');
 const { startStandaloneServer } = require('@apollo/server/standalone');
+const { GraphQLError } = require('graphql');
 
 let persons = [
    {
@@ -25,26 +26,101 @@ let persons = [
 ];
 
 const typeDefs = `
+  enum YesNo {
+    YES
+    NO
+  }
+
+  type Address {
+    street: String!
+    city: String! 
+  }
+
   type Person {
     name: String!
     phone: String
-    street: String!
-    city: String! 
+    address: Address!
     id: ID!
   }
 
   type Query {
     personCount: Int!
-    allPersons: [Person!]!
+    allPersons(phone: YesNo): [Person!]!
     findPerson(name: String!): Person
+  }
+
+  type Mutation {
+    addPerson(
+      name: String!
+      phone: String
+      street: String!
+      city: String!
+    ): Person
+
+    editNumber(
+      name: String!
+      phone: String!
+    ): Person
   }
 `;
 
 const resolvers = {
    Query: {
       personCount: () => persons.length,
-      allPersons: () => persons,
-      findPerson: (root, args) => persons.find((p) => p.name === args.name),
+      allPersons: (root, args) => {
+         if (!args.phone) {
+            return persons;
+         }
+         const byPhone = (person) =>
+            args.phone === 'YES' ? person.phone : !person.phone;
+         return persons.filter(byPhone);
+      },
+      findPerson: (root, args) => {
+         const selectedPerson = persons.find((p) => p.name === args.name);
+
+         const noOfPeoples = persons.filter((p) => p.name === args.name);
+
+         if (noOfPeoples.length > 1) {
+            throw new GraphQLError('Name must be unique', {
+               extensions: {
+                  code: 'BAD_USER_INPUT',
+                  invalidArgs: args.name,
+               },
+            });
+         }
+
+         return selectedPerson;
+      },
+   },
+   Person: {
+      address: ({ street, city }) => {
+         return {
+            street: street,
+            city: city,
+         };
+      },
+   },
+   Mutation: {
+      addPerson: (root, args) => {
+         const person = { ...args, id: Date.now().toString() };
+         persons = persons.concat(person);
+         return person;
+      },
+      editNumber: (root, { name, phone }) => {
+         const personIndex = persons.findIndex((p) => p.name === name);
+
+         if (personIndex === -1) {
+            throw new GraphQLError('Name not found', {
+               extensions: {
+                  code: 'BAD_USER_INPUT',
+                  invalidArgs: name,
+               },
+            });
+         }
+         persons[personIndex].phone = phone;
+
+         return persons[personIndex];
+      },
    },
 };
 
