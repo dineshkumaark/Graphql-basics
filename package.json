@@ -1,0 +1,24 @@
+{
+  "name": "Graphql-basics",
+  "version": "1.0.0",
+  "description": "Learning Graphql bascis",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dineshkumaark/Graphql-basics.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dineshkumaark/Graphql-basics/issues"
+  },
+  "homepage": "https://github.com/dineshkumaark/Graphql-basics#readme",
+  "dependencies": {
+    "@apollo/server": "^4.7.1",
+    "graphql": "^16.6.0"
+  }
+}
