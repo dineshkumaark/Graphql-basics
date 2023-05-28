@@ -5,6 +5,9 @@
    "main": "index.js",
    "scripts": {
       "start": "nodemon task.js",
+      "client": "npm start --prefix ./client",
+      "server": "nodemon server/app.js",
+      "dev": "concurrently \"npm run server\" \"npm run client\"",
       "test": "echo \"Error: no test specified\" && exit 1"
    },
    "repository": {
@@ -20,6 +23,7 @@
    "homepage": "https://github.com/dineshkumaark/Graphql-basics#readme",
    "dependencies": {
       "@apollo/server": "^4.7.1",
+      "concurrently": "^8.0.1",
       "graphql": "^16.6.0"
    },
    "devDependencies": {
